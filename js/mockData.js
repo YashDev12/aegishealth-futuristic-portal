@@ -185,7 +185,7 @@ const mockData = {
       name: "Oncology", 
       icon: "fa-dna", 
       desc: "Advanced tumor screenings, chemotherapy plans, genetic risk assessments, and personalized oncology paths.", 
-      img: "https://images.unsplash.com/photo-1579154261294-a101d257a977?auto=format&fit=crop&w=400&q=80",
+      img: "https://images.unsplash.com/photo-1532938911079-1b06ac7ceec7?auto=format&fit=crop&w=400&q=80",
       details: {
         headline: "Personalized Genomic Cancer Center",
         overview: "The Oncology department integrates genomic profiling with advanced therapies to treat diverse oncological cases. We focus on early cancer detection, chemotherapy, immunotherapy, and dedicated patient care paths.",
@@ -215,7 +215,7 @@ const mockData = {
       name: "Mental Health", 
       icon: "fa-head-side-virus", 
       desc: "Support for anxiety disorders, depression guidance, psychotherapy, coping strategies, and psychological counseling.", 
-      img: "https://images.unsplash.com/photo-1527137342181-19aab11a8ee1?auto=format&fit=crop&w=400&q=80",
+      img: "https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=400&q=80",
       details: {
         headline: "Psychotherapy & Cognitive Wellness Services",
         overview: "Mental Health services offer a supportive, fully confidential environment for patients facing emotional hurdles. Our psychiatrists and licensed clinical counselors provide evidence-based psychotherapy and stress mitigation strategies.",
@@ -275,7 +275,7 @@ const mockData = {
       slots: ["01:00 PM", "02:30 PM", "03:45 PM"],
       status: "Online",
       aiRecommended: false,
-      img: "https://images.unsplash.com/photo-1594824813573-246434de83fb?auto=format&fit=crop&w=300&h=300&q=80"
+      img: "https://images.unsplash.com/photo-1579684385127-1ef15d508118?auto=format&fit=crop&w=300&h=300&q=80"
     },
     {
       id: "DOC-05",

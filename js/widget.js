@@ -1,14 +1,13 @@
 (function () {
   // Configuration (Site Admin inputs their API key here)
   const WIDGET_CONFIG = {
-    apiKey: "", // <-- Put your Groq API Key here
+    apiKey: "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", // <-- Put your Groq API Key here
     provider: "custom",               // "gemini" or "custom"
     baseUrl: "https://api.groq.com/openai/v1", // Leave empty if using Gemini
-    model: "llama-3.3-70b-versatile", // The active Groq model you want to use
-    serverUrl: "http://127.0.0.1:8086"
+    model: "llama-3.3-70b-versatile"  // The active Groq model you want to use
   };
 
-  const WIDGET_URL = `${WIDGET_CONFIG.serverUrl}/?mode=widget&apiKey=${WIDGET_CONFIG.apiKey}&provider=${WIDGET_CONFIG.provider}&baseUrl=${encodeURIComponent(WIDGET_CONFIG.baseUrl)}&model=${encodeURIComponent(WIDGET_CONFIG.model)}`;
+  const WIDGET_URL = `./ai-knowledge-assistant/chatbot.html?mode=widget&apiKey=${WIDGET_CONFIG.apiKey}&provider=${WIDGET_CONFIG.provider}&baseUrl=${encodeURIComponent(WIDGET_CONFIG.baseUrl)}&model=${encodeURIComponent(WIDGET_CONFIG.model)}`;
 
   // Inject CSS
   const style = document.createElement('style');
@@ -72,7 +71,11 @@
   // Create Iframe Container
   const container = document.createElement('div');
   container.className = 'aegis-widget-iframe-container';
-  container.innerHTML = `<iframe src="${WIDGET_URL}" class="aegis-widget-iframe" allow="microphone; clipboard-write; clipboard-read"></iframe>`;
+  const iframe = document.createElement('iframe');
+  iframe.src = WIDGET_URL;
+  iframe.className = 'aegis-widget-iframe';
+  iframe.setAttribute('allow', 'microphone; clipboard-write; clipboard-read');
+  container.appendChild(iframe);
   document.body.appendChild(container);
 
   // Create FAB

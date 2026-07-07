@@ -5,7 +5,7 @@ let dashState = {
   activeTab: 'overview',
   activeProfileId: 'PAT-00719', // Default Shivam
   sidebarCollapsed: false,
-  voiceOutput: true,
+  voiceOutput: false, // OFF by default — user must click speaker icon to enable
   voiceListening: false,
   recognition: null,
   activeInvoiceId: null,
@@ -20,13 +20,13 @@ document.addEventListener("DOMContentLoaded", () => {
   initClock();
   initCustomCursor();
   initMagneticButtons();
-  
+
   switchDashboardTab('overview'); // Load default
   switchFamilyProfile('PAT-00719'); // Load default patient details
-  
+
   initDashboardSpeech();
   initDragAndDropUpload();
-  
+
   // Dynamic page adjustments on hash change
   window.addEventListener("hashchange", handleHashRouting);
   handleHashRouting();
@@ -38,14 +38,14 @@ function initClock() {
     const timeSpan = document.getElementById("topbar-live-clock");
     if (timeSpan) {
       const now = new Date();
-      timeSpan.innerText = now.toLocaleString('en-US', { 
-        month: 'short', 
-        day: 'numeric', 
+      timeSpan.innerText = now.toLocaleString('en-US', {
+        month: 'short',
+        day: 'numeric',
         year: 'numeric',
-        hour: '2-digit', 
-        minute: '2-digit', 
+        hour: '2-digit',
+        minute: '2-digit',
         second: '2-digit',
-        hour12: true 
+        hour12: true
       });
     }
   }, 1000);
@@ -55,7 +55,7 @@ function initClock() {
 function toggleSidebarCollapse() {
   const sidebar = document.getElementById("dashboard-sidebar");
   dashState.sidebarCollapsed = !dashState.sidebarCollapsed;
-  
+
   if (dashState.sidebarCollapsed) {
     sidebar.className = "w-16 h-full border-r border-gray-900 bg-voidDark/90 flex flex-col justify-between shrink-0 transition-all duration-300 z-50";
     document.querySelectorAll(".sidebar-label").forEach(lbl => lbl.classList.add("hidden"));
@@ -74,25 +74,25 @@ function toggleSidebarCollapse() {
 // Dynamic tab routing switcher (with Skeleton loaders on transitions)
 function switchDashboardTab(tabId) {
   dashState.activeTab = tabId;
-  
+
   // Hide all sections
   document.querySelectorAll(".tab-view").forEach(tab => {
     tab.classList.add("hidden");
     tab.classList.remove("block");
   });
-  
+
   // Show target section
   const target = document.getElementById(`tab-${tabId}`);
   if (target) {
     target.classList.remove("hidden");
     target.classList.add("block");
-    
+
     // Trigger GSAP entry animation on the tab container
     if (typeof gsap !== "undefined" && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
       gsap.from(target, { opacity: 0, y: 15, duration: 0.45, ease: "power2.out" });
     }
   }
-  
+
   // Update sidebar active classes
   document.querySelectorAll("#dashboard-sidebar nav button").forEach(btn => {
     btn.className = "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs text-gray-400 hover:text-white transition-all";
@@ -101,18 +101,18 @@ function switchDashboardTab(tabId) {
   if (activeBtn) {
     activeBtn.classList.add("sidebar-active");
   }
-  
+
   // Update Breadcrumb name
   const breadcrumb = document.getElementById("breadcrumb-current-tab");
   if (breadcrumb) {
     breadcrumb.innerText = activeBtn ? activeBtn.querySelector("span").innerText : tabId.toUpperCase();
   }
-  
+
   // Re-draw graphs if analytics tab is selected
   if (tabId === 'analytics') {
     setTimeout(loadAnalyticsGraphs, 200);
   }
-  
+
   // Render sub-contents dynamically
   renderTabContents(tabId);
 }
@@ -129,10 +129,10 @@ function handleHashRouting() {
 
 function switchFamilyProfile(patId) {
   dashState.activeProfileId = patId;
-  
+
   const member = window.mockData.familyMembers.find(f => f.id === patId);
   if (!member) return;
-  
+
   // Apply skeleton loading pulse placeholder class on stats fields for 800ms
   const statsFields = ["stat-val-score", "stat-val-rx", "val-hr", "val-bp", "val-ox", "val-temp", "val-sugar"];
   statsFields.forEach(id => {
@@ -155,16 +155,16 @@ function switchFamilyProfile(patId) {
     document.getElementById("sidebar-patient-name").innerText = member.name;
     document.getElementById("sidebar-patient-id").innerText = member.id;
     document.getElementById("topbar-active-profile").innerText = member.name;
-    
+
     // Welcome title
     const welcome = document.getElementById("welcome-title");
     if (welcome) welcome.innerText = `Good Day, ${member.name}`;
-    
+
     // Bind Stats metrics
     document.getElementById("overview-health-score").innerText = member.healthScore;
     document.getElementById("stat-val-score").innerText = `${member.healthScore}%`;
     document.getElementById("stat-val-rx").innerText = `${member.prescriptions.length} Active`;
-    
+
     // Bind Mapped Appointments & Mapped Reports count
     const apptVal = document.getElementById("stat-val-appt");
     if (apptVal) {
@@ -192,28 +192,28 @@ function switchFamilyProfile(patId) {
     document.getElementById("val-ox").innerHTML = `${member.vitals.oxygen.value} <span class="text-[10px] font-normal text-gray-400">${member.vitals.oxygen.unit}</span>`;
     document.getElementById("val-temp").innerHTML = `${member.vitals.temperature.value} <span class="text-[10px] font-normal text-gray-400">${member.vitals.temperature.unit}</span>`;
     document.getElementById("val-sugar").innerHTML = `${member.vitals.bloodSugar.value} <span class="text-[10px] font-normal text-gray-400">${member.vitals.bloodSugar.unit}</span>`;
-    
+
     // Update EHR details tab
     document.getElementById("ehr-card-name").innerText = member.name;
     document.getElementById("ehr-card-blood").innerText = member.bloodGroup;
     document.getElementById("ehr-card-allergies").innerText = member.allergies;
     document.getElementById("ehr-card-chronic").innerText = member.chronic;
     document.getElementById("ehr-card-surgeries").innerText = member.surgeries;
-    
+
     // SOS ID panel
     document.getElementById("sos-card-name").innerText = member.name;
     document.getElementById("sos-card-blood").innerText = member.bloodGroup;
     document.getElementById("sos-card-allergies").innerText = member.allergies;
     document.getElementById("sos-card-chronic").innerText = member.chronic;
-    
+
     // Trigger animations
     animateTargetRings();
     loadPatientInfo();
-    
+
     // Re-render tab content
     renderTabContents(dashState.activeTab);
   }, 800);
-  
+
   // Show toast feedback
   showToastNotification(`Context Switched`, `Displaying records for ${member.name}`);
 }
@@ -222,8 +222,8 @@ function switchFamilyProfile(patId) {
 function renderTabContents(tabId) {
   const member = window.mockData.familyMembers.find(f => f.id === dashState.activeProfileId);
   if (!member) return;
-  
-  switch(tabId) {
+
+  switch (tabId) {
     case 'overview':
       renderOverviewMeds(member);
       break;
@@ -266,10 +266,10 @@ function showToastNotification(title, text) {
   if (!box) return;
   document.getElementById("toast-title").innerText = title;
   document.getElementById("toast-text").innerText = text;
-  
+
   box.style.opacity = "1";
   box.style.transform = "translateY(0)";
-  
+
   setTimeout(() => {
     box.style.opacity = "0";
     box.style.transform = "translateY(-100px)";
@@ -281,13 +281,13 @@ function showToastNotification(title, text) {
 function renderOverviewMeds(member) {
   const container = document.getElementById("overview-meds-list");
   if (!container) return;
-  
+
   container.innerHTML = "";
   if (member.prescriptions.length === 0) {
     container.innerHTML = `<p class="text-xs text-gray-500 py-4 text-center">No medications scheduled for today.</p>`;
     return;
   }
-  
+
   member.prescriptions.forEach(rx => {
     container.innerHTML += `
       <div class="flex items-center justify-between p-3 rounded-xl bg-gray-900/60 border border-gray-850">
@@ -315,15 +315,15 @@ function toggleDoseLogged(btn) {
 function renderAppointmentsTab() {
   const container = document.getElementById("appointments-upcoming-timeline");
   if (!container) return;
-  
+
   container.innerHTML = "";
   const list = window.mockData.appointments;
-  
+
   if (list.length === 0) {
     container.innerHTML = `<p class="text-xs text-gray-500 py-8 text-center">No upcoming consultations booked.</p>`;
     return;
   }
-  
+
   list.forEach((apt, idx) => {
     const isVideo = apt.type === 'Video Call' || apt.location.includes("Link");
     const actionBtn = isVideo ? `
@@ -331,7 +331,7 @@ function renderAppointmentsTab() {
     ` : `
       <span class="text-[10px] text-gray-500 font-mono"><i class="fa-solid fa-location-dot"></i> In-Person Visit</span>
     `;
-    
+
     container.innerHTML += `
       <div class="glass-panel p-5 bg-opacity-40 border-opacity-30 relative overflow-hidden flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div class="flex items-start gap-4">
@@ -371,7 +371,7 @@ function cancelAppointment(idx) {
 function renderDoctorsTab() {
   const container = document.getElementById("dashboard-doctors-grid");
   if (!container) return;
-  
+
   container.innerHTML = "";
   window.mockData.doctors.forEach(doc => {
     let statusClass = doc.status === 'Online' ? 'bg-emeraldGreen shadow-emeraldGreen/50' : 'bg-gray-500';
@@ -402,7 +402,7 @@ function renderDoctorsTab() {
 function renderEhrVaccinations() {
   const container = document.getElementById("ehr-vaccination-list");
   if (!container) return;
-  
+
   container.innerHTML = "";
   window.mockData.vaccinationSchedule.forEach(v => {
     let isComp = v.status === 'Completed';
@@ -429,7 +429,7 @@ function renderEhrVaccinations() {
 function renderLabReports() {
   const container = document.getElementById("lab-reports-list-container");
   if (!container) return;
-  
+
   container.innerHTML = "";
   window.mockData.labReports.forEach(rep => {
     container.innerHTML += `
@@ -447,7 +447,7 @@ function openLabInterpretation(repId) {
   const rep = window.mockData.labReports.find(r => r.id === repId);
   const container = document.getElementById("lab-interpretation-container");
   if (!rep || !container) return;
-  
+
   container.innerHTML = `
     <div class="flex justify-between items-start border-b border-gray-900 pb-4">
       <div>
@@ -475,7 +475,7 @@ function openLabInterpretation(repId) {
 function renderPrescriptionsList() {
   const container = document.getElementById("prescriptions-list-container");
   if (!container) return;
-  
+
   container.innerHTML = "";
   window.mockData.prescriptions.forEach(rx => {
     container.innerHTML += `
@@ -494,7 +494,7 @@ function openPrescriptionDetail(rxId) {
   const rx = window.mockData.prescriptions.find(r => r.id === rxId);
   const container = document.getElementById("prescription-detail-container");
   if (!rx || !container) return;
-  
+
   container.innerHTML = `
     <div class="flex justify-between items-start border-b border-gray-900 pb-4">
       <div>
@@ -522,13 +522,13 @@ function openPrescriptionDetail(rxId) {
 function renderMedicationPlanner(member) {
   const container = document.getElementById("planner-today-checkboxes");
   if (!container) return;
-  
+
   container.innerHTML = "";
   if (member.prescriptions.length === 0) {
     container.innerHTML = `<p class="text-xs text-gray-500 py-4 text-center">No medications logged in planner.</p>`;
     return;
   }
-  
+
   member.prescriptions.forEach((rx, idx) => {
     container.innerHTML += `
       <div class="flex items-center justify-between p-3 rounded-xl bg-gray-950/40 border border-gray-850 hover:border-indigo-500 duration-300">
@@ -564,7 +564,7 @@ function togglePlannerCompliance(checkbox) {
 function renderInsuranceClaims() {
   const container = document.getElementById("claims-log-table-body");
   if (!container) return;
-  
+
   container.innerHTML = "";
   window.mockData.claims.forEach(cl => {
     container.innerHTML += `
@@ -582,7 +582,7 @@ function renderInsuranceClaims() {
 function renderBillingInvoices() {
   const container = document.getElementById("invoices-table-body");
   if (!container) return;
-  
+
   container.innerHTML = "";
   window.mockData.billingInvoices.forEach(inv => {
     let isPaid = inv.status === 'Paid';
@@ -591,7 +591,7 @@ function renderBillingInvoices() {
     ` : `
       <button onclick="openCheckoutModal('${inv.id}', '${inv.copay}', '${inv.service}')" class="px-2.5 py-1 rounded bg-red-650 hover:bg-red-500 text-[9px] text-white font-bold transition-all magnetic-btn"><i class="fa-solid fa-credit-card"></i> Pay Copay</button>
     `;
-    
+
     container.innerHTML += `
       <tr class="border-b border-gray-900/60 text-gray-300 hover:bg-white/5 transition-all">
         <td class="py-3 font-mono font-bold">${inv.id}</td>
@@ -612,7 +612,7 @@ function renderBillingInvoices() {
 function renderNotifications() {
   const container = document.getElementById("notifications-list-container");
   if (!container) return;
-  
+
   container.innerHTML = "";
   window.mockData.notifications.forEach(n => {
     container.innerHTML += `
@@ -643,7 +643,7 @@ function markAllNotificationsRead() {
 function renderFamilyGrid() {
   const container = document.getElementById("family-profiles-grid");
   if (!container) return;
-  
+
   container.innerHTML = "";
   window.mockData.familyMembers.forEach(f => {
     container.innerHTML += `
@@ -669,7 +669,7 @@ function renderFamilyGrid() {
 function openDashboardBookingModal(docName = "", dept = "") {
   const overlay = document.getElementById("booking-modal-overlay");
   overlay.classList.add("active");
-  
+
   if (dept) {
     document.getElementById("dash-modal-dept-select").value = dept;
   }
@@ -684,21 +684,21 @@ function loadDashboardDoctorOptions(selectedDocName = "") {
   const dept = document.getElementById("dash-modal-dept-select").value;
   const docSelect = document.getElementById("dash-modal-doc-select");
   const timeSelect = document.getElementById("dash-modal-time-select");
-  
+
   docSelect.innerHTML = "";
   timeSelect.innerHTML = "";
-  
+
   const filtered = window.mockData.doctors.filter(d => d.specialty === dept);
   if (filtered.length === 0) {
     docSelect.innerHTML = `<option value="">No specialists in department</option>`;
     return;
   }
-  
+
   filtered.forEach(doc => {
     let isSel = doc.name === selectedDocName ? "selected" : "";
     docSelect.innerHTML += `<option value="${doc.name}" ${isSel}>${doc.name}</option>`;
   });
-  
+
   const slots = filtered[0].slots;
   slots.forEach(sl => {
     timeSelect.innerHTML += `<option value="${sl}">${sl}</option>`;
@@ -712,9 +712,9 @@ function confirmDashboardAppointment(event) {
   const date = document.getElementById("dash-modal-date-picker").value;
   const time = document.getElementById("dash-modal-time-select").value;
   const isVideo = document.getElementById("dash-modal-video-toggle").checked;
-  
+
   closeDashboardBookingModal();
-  
+
   const newApt = {
     id: "APT-" + Math.floor(Math.random() * 9000 + 1000),
     doctor: doc,
@@ -725,12 +725,12 @@ function confirmDashboardAppointment(event) {
     status: "Confirmed",
     type: isVideo ? "Video Call" : "In-Person"
   };
-  
+
   window.mockData.appointments.unshift(newApt);
-  
+
   loadPatientInfo();
   renderAppointmentsTab();
-  
+
   showToastNotification("Consultation Booked", `Confirmed with ${doc} on ${date}`);
 }
 
@@ -739,10 +739,10 @@ function confirmDashboardAppointment(event) {
 function openCheckoutModal(invoiceId, copay, serviceName) {
   dashState.activeInvoiceId = invoiceId;
   const overlay = document.getElementById("checkout-modal-overlay");
-  
+
   document.getElementById("checkout-balance-title").innerText = copay;
   document.getElementById("checkout-details-text").innerText = `Invoice ${invoiceId} for ${serviceName}`;
-  
+
   overlay.classList.add("active");
 }
 
@@ -753,15 +753,15 @@ function closeCheckoutModal() {
 function simulateStripeCheckoutPay(event) {
   event.preventDefault();
   closeCheckoutModal();
-  
+
   const inv = window.mockData.billingInvoices.find(i => i.id === dashState.activeInvoiceId);
   if (inv) {
     inv.status = 'Paid';
     inv.receipt = `aegis_receipt_${inv.id.substring(4)}.pdf`;
   }
-  
+
   document.getElementById("billing-outstanding-val").innerText = "$0.00";
-  
+
   renderBillingInvoices();
   showToastNotification("Payment Success", "Stripe payment cleared. Copay balanced to zero.");
 }
@@ -771,19 +771,19 @@ function simulateStripeCheckoutPay(event) {
 function triggerEmergencySOS() {
   const overlay = document.getElementById("emergency-sos-overlay");
   overlay.classList.remove("hidden");
-  
+
   dashState.sosCountdown = 5;
   document.getElementById("sos-timer-count").innerText = `Calling Emergency Dispatch in ${dashState.sosCountdown}s...`;
-  
+
   if ('speechSynthesis' in window) {
     window.speechSynthesis.cancel();
     window.speechSynthesis.speak(new SpeechSynthesisUtterance("Emergency alert initiated. Calling paramedics."));
   }
-  
+
   dashState.sosTimer = setInterval(() => {
     dashState.sosCountdown--;
     document.getElementById("sos-timer-count").innerText = `Calling Emergency Dispatch in ${dashState.sosCountdown}s...`;
-    
+
     if (dashState.sosCountdown <= 0) {
       clearInterval(dashState.sosTimer);
       simulateSOSDispatch();
@@ -795,7 +795,7 @@ function cancelEmergencySOS() {
   clearInterval(dashState.sosTimer);
   const overlay = document.getElementById("emergency-sos-overlay");
   overlay.classList.add("hidden");
-  
+
   showToastNotification("SOS Aborted", "Paromedics emergency call cancelled.");
   if ('speechSynthesis' in window) window.speechSynthesis.cancel();
 }
@@ -811,15 +811,15 @@ function simulateSOSDispatch() {
 function loadAnalyticsGraphs() {
   const history = window.mockData.analyticsHistory;
   const filter = document.getElementById("analytics-filter-range").value;
-  
+
   Object.keys(dashState.charts).forEach(key => {
     if (dashState.charts[key]) dashState.charts[key].destroy();
   });
-  
+
   const isLight = document.documentElement.getAttribute("data-theme") === 'light';
   const gridColor = isLight ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.03)';
   const labelColor = isLight ? '#4B5563' : '#9CA3AF';
-  
+
   const chartOptions = {
     responsive: true,
     maintainAspectRatio: false,
@@ -936,26 +936,26 @@ function initDashboardSpeech() {
     rec.continuous = false;
     rec.interimResults = false;
     rec.lang = 'en-US';
-    
+
     rec.onstart = () => {
       dashState.voiceListening = true;
       document.getElementById("dash-voice-active-indicator").classList.remove("hidden");
       document.getElementById("dash-mic-btn").className = "w-9 h-9 rounded-xl bg-cyanAccent/20 border border-cyanAccent flex items-center justify-center text-cyanAccent";
       if ('speechSynthesis' in window) window.speechSynthesis.cancel();
     };
-    
+
     rec.onend = () => {
       dashState.voiceListening = false;
       document.getElementById("dash-voice-active-indicator").classList.add("hidden");
       document.getElementById("dash-mic-btn").className = "w-9 h-9 rounded-xl glass-panel flex items-center justify-center text-gray-300 hover:text-cyanAccent hover:border-cyanAccent transition-all";
     };
-    
+
     rec.onresult = (event) => {
       const transcript = event.results[0][0].transcript;
       document.getElementById("dashboard-chat-input").value = transcript;
       sendDashboardChatMessage();
     };
-    
+
     dashState.recognition = rec;
   }
 }
@@ -973,7 +973,7 @@ function toggleDashboardVoiceOutput() {
   dashState.voiceOutput = !dashState.voiceOutput;
   const btn = document.getElementById("dash-speaker-btn");
   if (!btn) return;
-  
+
   if (dashState.voiceOutput) {
     btn.className = "w-9 h-9 rounded-xl glass-panel flex items-center justify-center text-emeraldGreen hover:border-emeraldGreen transition-all";
     btn.innerHTML = `<i class="fa-solid fa-volume-high"></i>`;
@@ -987,7 +987,7 @@ function toggleDashboardVoiceOutput() {
 function toggleSettingsVoiceOutput() {
   const checkbox = document.getElementById("settings-voice-toggle");
   dashState.voiceOutput = checkbox.checked;
-  
+
   const btn = document.getElementById("dash-speaker-btn");
   if (btn) {
     if (dashState.voiceOutput) {
@@ -1008,10 +1008,10 @@ function sendDashboardChatMessage() {
   const input = document.getElementById("dashboard-chat-input");
   const text = input.value.trim();
   if (!text) return;
-  
+
   input.value = "";
   addDashboardMessage("user", text);
-  
+
   showDashboardTyping();
   setTimeout(() => {
     hideDashboardTyping();
@@ -1031,7 +1031,7 @@ function sendDashboardQuickPrompt(promptText) {
 function addDashboardMessage(sender, text) {
   const log = document.getElementById("dashboard-chat-log");
   if (!log) return;
-  
+
   const msg = document.createElement("div");
   if (sender === 'bot') {
     msg.className = "flex gap-3 justify-start text-left";
@@ -1067,6 +1067,10 @@ function speakResponse(text) {
   }
 }
 
+// Stop all speech when user navigates away from dashboard
+window.addEventListener('pagehide', () => { if ('speechSynthesis' in window) window.speechSynthesis.cancel(); });
+document.addEventListener('visibilitychange', () => { if (document.hidden && 'speechSynthesis' in window) window.speechSynthesis.cancel(); });
+
 // Typing indicators
 function showDashboardTyping() {
   const log = document.getElementById("dashboard-chat-log");
@@ -1096,11 +1100,11 @@ function processDashboardAiResponse(inputText) {
   const text = inputText.toLowerCase();
   const db = window.mockData.medicalSymptomsDatabase;
   const rules = window.mockData.aiDoctorRules;
-  
+
   let matchedSymptom = db.find(symptom => {
     return symptom.keywords.some(kw => text.includes(kw));
   });
-  
+
   if (matchedSymptom) {
     let adviceHtml = `
 **AI Clinical Assessment:**
@@ -1114,7 +1118,7 @@ ${matchedSymptom.redFlags}
 
 Would you like to schedule a consultation slot with ${matchedSymptom.doctor}?
     `;
-    
+
     const log = document.getElementById("dashboard-chat-log");
     const msg = document.createElement("div");
     msg.className = "flex gap-3 justify-start text-left";
@@ -1129,16 +1133,16 @@ Would you like to schedule a consultation slot with ${matchedSymptom.doctor}?
     `;
     log.appendChild(msg);
     log.scrollTop = log.scrollHeight;
-    
+
     if (dashState.voiceOutput) speakResponse(`Assessments complete for ${matchedSymptom.department}. ${matchedSymptom.guidance}`);
     return;
   }
-  
+
   if (text.includes("cholesterol") || text.includes("lipid") || text.includes("report")) {
     addDashboardMessage("bot", rules.lab + "\n\n" + window.mockData.labReports[0].interpretation.summary);
     return;
   }
-  
+
   if (text.includes("amoxicillin") || text.includes("cetirizine") || text.includes("medication") || text.includes("prescription")) {
     addDashboardMessage("bot", rules.medication + "\n\n" + rules.prescription);
     return;
@@ -1156,9 +1160,9 @@ function triggerSimulatedUpload() {
 function processMockFileUpload(event) {
   const file = event.target.files[0];
   if (!file) return;
-  
+
   showToastNotification("Uploading Record", `${file.name} processing...`);
-  
+
   const list = document.getElementById("ai-uploaded-docs-list");
   const node = document.createElement("div");
   node.className = "flex items-center justify-between p-2 rounded-lg bg-gray-950/40 border border-gray-850";
@@ -1172,7 +1176,7 @@ function processMockFileUpload(event) {
     </div>
   `;
   list.prepend(node);
-  
+
   setTimeout(() => {
     node.innerHTML = `
       <div class="flex items-center gap-2">
@@ -1212,20 +1216,20 @@ function loadPatientInfo() {
 function animateTargetRings() {
   const member = window.mockData.familyMembers.find(f => f.id === dashState.activeProfileId);
   if (!member) return;
-  
+
   const act = window.mockData.vitals.activity;
   const stepsPct = act.steps / act.target;
   const sleepPct = act.sleep / act.targetSleep;
   const caloriesPct = act.calories / 1000;
-  
+
   const ringSt = document.getElementById("ring-overview-steps");
   const ringSl = document.getElementById("ring-overview-sleep");
   const ringCl = document.getElementById("ring-overview-calories");
-  
+
   if (ringSt) ringSt.style.strokeDashoffset = 314.16 * (1 - stepsPct);
   if (ringSl) ringSl.style.strokeDashoffset = 238.76 * (1 - Math.min(sleepPct, 1));
   if (ringCl) ringCl.style.strokeDashoffset = 163.36 * (1 - caloriesPct);
-  
+
   const pctText = document.getElementById("ring-pct-steps-text");
   if (pctText) pctText.innerText = `${Math.floor(stepsPct * 100)}%`;
 }
@@ -1233,7 +1237,7 @@ function animateTargetRings() {
 function launchMockVideoConsultation() {
   switchDashboardTab('telemedicine');
   alert("Launching Aegis Secure Video Room... Connecting to encrypted clinical line.");
-  
+
   const screen = document.querySelector("#tab-telemedicine img");
   if (screen) {
     screen.src = "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=600&h=400&q=80";
@@ -1245,30 +1249,30 @@ function initCustomCursor() {
   let mouse = { x: 0, y: 0 };
   let cursorDot = { x: 0, y: 0 };
   let cursorGlow = { x: 0, y: 0 };
-  
+
   document.addEventListener("mousemove", (e) => {
     mouse.x = e.clientX;
     mouse.y = e.clientY;
   });
-  
+
   function animateCursor() {
     cursorDot.x += (mouse.x - cursorDot.x) * 0.25;
     cursorDot.y += (mouse.y - cursorDot.y) * 0.25;
-    
+
     cursorGlow.x += (mouse.x - cursorGlow.x) * 0.12;
     cursorGlow.y += (mouse.y - cursorGlow.y) * 0.12;
-    
+
     const dotEl = document.getElementById("custom-cursor");
     const glowEl = document.getElementById("custom-cursor-glow");
     const followGlowEl = document.getElementById("mouse-follow-glow");
-    
+
     if (dotEl) dotEl.style.transform = `translate3d(${cursorDot.x}px, ${cursorDot.y}px, 0) translate(-50%, -50%)`;
     if (glowEl) glowEl.style.transform = `translate3d(${cursorGlow.x}px, ${cursorGlow.y}px, 0) translate(-50%, -50%)`;
     if (followGlowEl) followGlowEl.style.transform = `translate3d(${mouse.x}px, ${mouse.y}px, 0) translate(-50%, -50%)`;
-    
+
     requestAnimationFrame(animateCursor);
   }
-  
+
   if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
     requestAnimationFrame(animateCursor);
   }
@@ -1286,19 +1290,19 @@ function init3DTilt() {
   if (window.matchMedia('(pointer: coarse)').matches || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
     return;
   }
-  
+
   document.querySelectorAll(".tilt-card").forEach(card => {
     card.addEventListener("mousemove", (e) => {
       const rect = card.getBoundingClientRect();
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
-      
+
       const rotX = ((y / rect.height) - 0.5) * -16;
       const rotY = ((x / rect.width) - 0.5) * 16;
-      
+
       card.style.transform = `perspective(1000px) rotateX(${rotX}deg) rotateY(${rotY}deg) scale3d(1.02, 1.02, 1.02)`;
     });
-    
+
     card.addEventListener("mouseleave", () => {
       card.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)`;
     });
@@ -1310,19 +1314,19 @@ function initMagneticButtons() {
   if (window.matchMedia('(pointer: coarse)').matches || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
     return;
   }
-  
+
   document.querySelectorAll(".magnetic-btn").forEach(btn => {
     btn.addEventListener("mousemove", (e) => {
       const rect = btn.getBoundingClientRect();
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
-      
-      const pullX = (x - rect.width/2) * 0.35;
-      const pullY = (y - rect.height/2) * 0.35;
-      
+
+      const pullX = (x - rect.width / 2) * 0.35;
+      const pullY = (y - rect.height / 2) * 0.35;
+
       btn.style.transform = `translate3d(${pullX}px, ${pullY}px, 0) scale(1.04)`;
     });
-    
+
     btn.addEventListener("mouseleave", () => {
       btn.style.transform = `translate3d(0, 0, 0) scale(1)`;
     });

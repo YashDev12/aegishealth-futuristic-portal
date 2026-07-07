@@ -6,7 +6,7 @@ let appState = {
   theme: 'dark',
   waterIntake: 1000,
   waterTarget: 2500,
-  aiVoiceOutput: true,
+  aiVoiceOutput: false, // OFF by default — user must click speaker icon to enable
   aiListening: false,
   chatDrawerOpen: false,
   recognition: null
@@ -18,20 +18,20 @@ document.addEventListener("DOMContentLoaded", () => {
   initBackgroundParticles();
   initTheme();
   initMouseGlowTracking();
-  
+
   // Render static data
   renderServices();
   renderDoctors();
   renderTestimonial();
   renderBlog();
   renderFaq();
-  
+
   // Set initial patient metadata
   loadPatientInfo();
-  
+
   // Load initial speech API
   initSpeechRecognition();
-  
+
   // Trigger initial chat greeting
   initAiDoctorGreeting();
 });
@@ -53,13 +53,13 @@ function initLoader() {
 function triggerEntranceAnimations() {
   if (typeof gsap !== "undefined") {
     gsap.registerPlugin(ScrollTrigger);
-    
+
     // Fade in nav & hero elements
     gsap.from("#main-nav", { opacity: 0, y: -20, duration: 0.8, ease: "power2.out" });
     gsap.from("#hero-headline", { opacity: 0, x: -50, duration: 1, delay: 0.2, ease: "power3.out" });
     gsap.from("#hero p, #hero button, #hero .glass-panel", { opacity: 0, y: 30, duration: 0.8, delay: 0.4, stagger: 0.1, ease: "power2.out" });
     gsap.from("#hero-image-container", { opacity: 0, scale: 0.9, duration: 1.2, delay: 0.3, ease: "elastic.out(1, 0.75)" });
-    
+
     // Scroll triggered card fannings
     gsap.from("#insights .glass-panel, #insights .vital-widget-card", {
       scrollTrigger: {
@@ -79,18 +79,18 @@ function triggerEntranceAnimations() {
 function initBackgroundParticles() {
   const container = document.getElementById("particles-container");
   const particleCount = 20;
-  
+
   for (let i = 0; i < particleCount; i++) {
     const p = document.createElement("div");
     p.className = "particle";
-    
+
     // Random position, sizes, and delays
     p.style.left = `${Math.random() * 100}vw`;
     p.style.width = `${Math.random() * 6 + 4}px`;
     p.style.height = p.style.width;
     p.style.animationDuration = `${Math.random() * 15 + 15}s`;
     p.style.animationDelay = `${Math.random() * 10}s`;
-    
+
     container.appendChild(p);
   }
 }
@@ -113,7 +113,7 @@ function togglePortalTheme() {
 function updateThemeUI() {
   const icon = document.getElementById("theme-icon");
   const body = document.body;
-  
+
   if (appState.theme === 'light') {
     icon.className = "fa-solid fa-sun text-yellow-500";
     body.classList.remove("bg-voidDark", "text-gray-100");
@@ -132,7 +132,7 @@ function initMouseGlowTracking() {
       const rect = card.getBoundingClientRect();
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
-      
+
       card.style.setProperty("--mouse-x", `${x}px`);
       card.style.setProperty("--mouse-y", `${y}px`);
     });
@@ -142,9 +142,13 @@ function initMouseGlowTracking() {
 // Bind patient metadata
 function loadPatientInfo() {
   const patient = window.mockData.patient;
-  document.getElementById("nav-user-name").innerText = patient.name;
-  document.getElementById("nav-user-meta").innerText = `19 Yrs • ${patient.gender}`;
-  document.getElementById("welcome-title").innerText = `Good Day, ${patient.name}`;
+  const nameEl = document.getElementById("nav-user-name");
+  const metaEl = document.getElementById("nav-user-meta");
+  const titleEl = document.getElementById("welcome-title");
+
+  if (nameEl) nameEl.innerText = patient.name;
+  if (metaEl) metaEl.innerText = `19 Yrs • ${patient.gender}`;
+  if (titleEl) titleEl.innerText = `Good Day, ${patient.name}`;
 }
 
 // Renders diagnostic services
@@ -152,7 +156,7 @@ function renderServices() {
   const services = window.mockData.services;
   const grid = document.getElementById("services-grid-container");
   grid.innerHTML = "";
-  
+
   services.forEach(serv => {
     grid.innerHTML += `
       <div class="glass-panel glass-panel-hover glow-card overflow-hidden flex flex-col justify-between h-[280px]">
@@ -182,9 +186,9 @@ function renderDoctors(filterCategory = "All") {
   const doctors = window.mockData.doctors;
   const grid = document.getElementById("doctors-grid-container");
   grid.innerHTML = "";
-  
+
   const filtered = filterCategory === "All" ? doctors : doctors.filter(d => d.specialty === filterCategory);
-  
+
   filtered.forEach(doc => {
     let statusClass = doc.status === 'Online' ? 'bg-emeraldGreen shadow-emeraldGreen/50' : 'bg-gray-500';
     let badge = doc.aiRecommended ? `
@@ -192,7 +196,7 @@ function renderDoctors(filterCategory = "All") {
         <i class="fa-solid fa-sparkles"></i> AI Recommended
       </div>
     ` : '';
-    
+
     grid.innerHTML += `
       <div class="glass-panel glass-panel-hover glow-card overflow-hidden flex flex-col relative text-left">
         ${badge}
@@ -235,7 +239,7 @@ function filterDoctors(category) {
   document.querySelectorAll(".doc-filter-btn").forEach(btn => {
     btn.className = "px-4 py-2 rounded-xl text-xs font-semibold glass-panel text-gray-300 hover:text-white transition-all doc-filter-btn";
   });
-  
+
   event.target.className = "px-4 py-2 rounded-xl text-xs font-semibold bg-medBlue text-white shadow-lg shadow-medBlue/20 transition-all doc-filter-btn";
   renderDoctors(category);
 }
@@ -244,13 +248,13 @@ function filterDoctors(category) {
 function renderTestimonial() {
   const testimonials = window.mockData.testimonials;
   const current = testimonials[appState.currentTestimonialIdx];
-  
+
   // Stars builder
   let starsHtml = "";
   for (let i = 0; i < current.rating; i++) {
     starsHtml += `<i class="fa-solid fa-star"></i>`;
   }
-  
+
   document.getElementById("testimonial-stars").innerHTML = starsHtml;
   document.getElementById("testimonial-comment").innerText = `"${current.comment}"`;
   document.getElementById("testimonial-name").innerText = current.name;
@@ -260,13 +264,13 @@ function renderTestimonial() {
 function slideTestimonial(direction) {
   const testimonials = window.mockData.testimonials;
   appState.currentTestimonialIdx += direction;
-  
+
   if (appState.currentTestimonialIdx < 0) {
     appState.currentTestimonialIdx = testimonials.length - 1;
   } else if (appState.currentTestimonialIdx >= testimonials.length) {
     appState.currentTestimonialIdx = 0;
   }
-  
+
   // Trigger card fade out/in effect
   const card = document.getElementById("testimonial-card");
   card.style.opacity = "0.5";
@@ -281,7 +285,7 @@ function renderBlog() {
   const articles = window.mockData.blogArticles;
   const grid = document.getElementById("blog-grid-container");
   grid.innerHTML = "";
-  
+
   articles.forEach(art => {
     grid.innerHTML += `
       <div class="glass-panel glass-panel-hover glow-card overflow-hidden flex flex-col text-left">
@@ -311,7 +315,7 @@ function renderFaq() {
   const faqs = window.mockData.faqs;
   const container = document.getElementById("faq-accordion-container");
   container.innerHTML = "";
-  
+
   faqs.forEach((faq, idx) => {
     container.innerHTML += `
       <div class="faq-item glass-panel border-opacity-30 group overflow-hidden" id="faq-node-${idx}">
@@ -330,10 +334,10 @@ function renderFaq() {
 function toggleFaqAccordion(idx) {
   const item = document.getElementById(`faq-node-${idx}`);
   const isActive = item.classList.contains("active");
-  
+
   // Reset all
   document.querySelectorAll(".faq-item").forEach(node => node.classList.remove("active"));
-  
+
   if (!isActive) {
     item.classList.add("active");
   }
@@ -343,7 +347,7 @@ function toggleFaqAccordion(idx) {
 function handleHeroSearch() {
   const input = document.getElementById("hero-search-input").value.trim().toLowerCase();
   if (!input) return;
-  
+
   // If symptom, navigate
   if (input.includes("chest") || input.includes("heart") || input.includes("rash") || input.includes("pain") || input.includes("fever")) {
     document.getElementById("insights").scrollIntoView();
@@ -365,7 +369,7 @@ function logWaterIntake(amount) {
     appState.waterIntake = appState.waterTarget;
     alert("Daily hydration goal fully achieved! Great job.");
   }
-  
+
   document.getElementById("water-intake-val").innerText = appState.waterIntake;
   const percent = (appState.waterIntake / appState.waterTarget) * 100;
   document.getElementById("water-fill-level").style.height = `${percent}%`;
@@ -375,12 +379,12 @@ function logWaterIntake(amount) {
 function calculateBmi() {
   const height = parseFloat(document.getElementById("bmi-height").value) / 100;
   const weight = parseFloat(document.getElementById("bmi-weight").value);
-  
+
   if (!height || !weight) return;
-  
+
   const bmi = (weight / (height * height)).toFixed(1);
   document.getElementById("bmi-score-val").innerText = bmi;
-  
+
   const label = document.getElementById("bmi-status-label");
   if (bmi < 18.5) {
     label.innerText = "Underweight";
@@ -399,14 +403,14 @@ function calculateBmi() {
 function openBookingModal(format = "Clinic", docName = "", dept = "") {
   const overlay = document.getElementById("appointment-modal-overlay");
   overlay.classList.add("active");
-  
+
   // Set video Consultation mode toggle
   document.getElementById("modal-video-toggle").checked = format === "Video";
-  
+
   if (dept) {
     document.getElementById("modal-dept-select").value = dept;
   }
-  
+
   loadDoctorOptions(docName);
 }
 
@@ -418,22 +422,22 @@ function loadDoctorOptions(selectedDocName = "") {
   const dept = document.getElementById("modal-dept-select").value;
   const docSelect = document.getElementById("modal-doc-select");
   const timeSelect = document.getElementById("modal-time-select");
-  
+
   docSelect.innerHTML = "";
   timeSelect.innerHTML = "";
-  
+
   // Load doctors filtered by specialty
   const filtered = window.mockData.doctors.filter(d => d.specialty === dept);
   if (filtered.length === 0) {
     docSelect.innerHTML = `<option value="">No specialists in this clinic</option>`;
     return;
   }
-  
+
   filtered.forEach(doc => {
     let isSel = doc.name === selectedDocName ? "selected" : "";
     docSelect.innerHTML += `<option value="${doc.name}" ${isSel}>${doc.name}</option>`;
   });
-  
+
   // Load slots for first doctor
   const slots = filtered[0].slots;
   slots.forEach(sl => {
@@ -448,11 +452,11 @@ function confirmAppointment(event) {
   const date = document.getElementById("modal-date-picker").value;
   const time = document.getElementById("modal-time-select").value;
   const isVideo = document.getElementById("modal-video-toggle").checked;
-  
+
   closeBookingModal();
-  
+
   alert(`Consultation booked successfully! \n\nPhysician: ${doc} \nSpecialty: ${dept} \nFormat: ${isVideo ? "HD Video Call" : "In-Person Clinic Visit"} \nDate: ${date} at ${time}`);
-  
+
   // Update timeline dynamically
   const newApt = {
     id: "APT-" + Math.floor(Math.random() * 9000 + 1000),
@@ -463,7 +467,7 @@ function confirmAppointment(event) {
     location: isVideo ? "Virtual Video Session link" : "Main Clinic Building, Floor 1",
     status: "Confirmed"
   };
-  
+
   window.mockData.appointments.unshift(newApt);
   loadPatientInfo();
   navigateTo('home');
@@ -474,13 +478,13 @@ function confirmAppointment(event) {
 function toggleAiDrawer(forceOpen = null) {
   const drawer = document.getElementById("ai-chat-drawer");
   const trigger = document.getElementById("ai-agent-trigger");
-  
+
   if (forceOpen !== null) {
     appState.chatDrawerOpen = forceOpen;
   } else {
     appState.chatDrawerOpen = !appState.chatDrawerOpen;
   }
-  
+
   if (appState.chatDrawerOpen) {
     drawer.classList.remove("translate-y-10", "opacity-0", "pointer-events-none");
     drawer.classList.add("translate-y-0", "opacity-100", "pointer-events-all");
@@ -506,10 +510,10 @@ function sendAiTextMessage() {
   const input = document.getElementById("ai-agent-input");
   const text = input.value.trim();
   if (!text) return;
-  
+
   input.value = "";
   addAiMessage("user", text);
-  
+
   // Simulate AI response
   showAiTyping();
   setTimeout(() => {
@@ -554,7 +558,7 @@ function hideAiTyping() {
 function addAiMessage(sender, text) {
   const log = document.getElementById("ai-chat-log");
   const msg = document.createElement("div");
-  
+
   let layout = "";
   if (sender === 'bot') {
     layout = `
@@ -567,7 +571,7 @@ function addAiMessage(sender, text) {
         </div>
       </div>
     `;
-    
+
     // Speak out response if option is active
     if (appState.aiVoiceOutput) {
       speakResponse(text);
@@ -581,7 +585,7 @@ function addAiMessage(sender, text) {
       </div>
     `;
   }
-  
+
   msg.innerHTML = layout;
   log.appendChild(msg);
   log.scrollTop = log.scrollHeight;
@@ -592,22 +596,22 @@ function speakResponse(text) {
   if ('speechSynthesis' in window) {
     // Clear existing voice speaking queues
     window.speechSynthesis.cancel();
-    
+
     // Clean markdown styling tags from read string
     const cleanText = text
       .replace(/\*\*/g, "")
       .replace(/\*/g, "")
       .replace(/<[^>]*>/g, "");
-      
+
     const utterance = new SpeechSynthesisUtterance(cleanText);
     utterance.rate = 1.0;
     utterance.pitch = 1.05;
-    
+
     // Select premium-like English female voice if available
     const voices = window.speechSynthesis.getVoices();
     const targetVoice = voices.find(v => v.name.includes("Google US English") || v.name.includes("Microsoft Zira"));
     if (targetVoice) utterance.voice = targetVoice;
-    
+
     window.speechSynthesis.speak(utterance);
   }
 }
@@ -615,34 +619,34 @@ function speakResponse(text) {
 // Web Speech Recognition (Speech to Text)
 function initSpeechRecognition() {
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-  
+
   if (SpeechRecognition) {
     const rec = new SpeechRecognition();
     rec.continuous = false;
     rec.interimResults = false;
     rec.lang = 'en-US';
-    
+
     rec.onstart = () => {
       appState.aiListening = true;
       document.getElementById("voice-speaking-indicator").classList.remove("hidden");
       document.getElementById("voice-dictation-btn").className = "w-9 h-9 rounded-xl bg-cyanAccent/20 border border-cyanAccent flex items-center justify-center text-cyanAccent";
-      
+
       // Stop speech synthesizer output when recording
       if ('speechSynthesis' in window) window.speechSynthesis.cancel();
     };
-    
+
     rec.onend = () => {
       appState.aiListening = false;
       document.getElementById("voice-speaking-indicator").classList.add("hidden");
       document.getElementById("voice-dictation-btn").className = "w-9 h-9 rounded-xl glass-panel flex items-center justify-center text-gray-300 hover:text-cyanAccent hover:border-cyanAccent transition-all";
     };
-    
+
     rec.onresult = (event) => {
       const transcript = event.results[0][0].transcript;
       document.getElementById("ai-agent-input").value = transcript;
       sendAiTextMessage();
     };
-    
+
     appState.recognition = rec;
   }
 }
@@ -652,7 +656,7 @@ function toggleVoiceDictation() {
     alert("Speech recognition API is not supported in this browser window. Please check permissions or use Chrome/Edge.");
     return;
   }
-  
+
   if (appState.aiListening) {
     appState.recognition.stop();
   } else {
@@ -663,7 +667,7 @@ function toggleVoiceDictation() {
 function toggleVoiceOutput() {
   appState.aiVoiceOutput = !appState.aiVoiceOutput;
   const btn = document.getElementById("voice-output-btn");
-  
+
   if (appState.aiVoiceOutput) {
     btn.className = "w-9 h-9 rounded-xl glass-panel flex items-center justify-center text-emeraldGreen hover:border-emeraldGreen transition-all";
     btn.innerHTML = `<i class="fa-solid fa-volume-high"></i>`;
@@ -674,17 +678,21 @@ function toggleVoiceOutput() {
   }
 }
 
+// Stop all speech when user navigates away from this page
+window.addEventListener('pagehide', () => { if ('speechSynthesis' in window) window.speechSynthesis.cancel(); });
+document.addEventListener('visibilitychange', () => { if (document.hidden && 'speechSynthesis' in window) window.speechSynthesis.cancel(); });
+
 // Contextual AI Dialog responses logic
 function processAiAgentResponse(inputText) {
   const text = inputText.toLowerCase();
   const rules = window.mockData.aiDoctorRules;
-  
+
   // Custom symptom checker triggers
   if (text.includes("symptom") || text.includes("pain") || text.includes("ache") || text.includes("hurt") || text.includes("cough")) {
     addAiMessage("bot", rules.symptomsCheck);
     return;
   }
-  
+
   if (text.includes("chest") || text.includes("heart") || text.includes("palpitation")) {
     addAiMessage("bot", "**Cardiology special recommendation details (Urgency: High):** \nI've routed matching specialist **Dr. Robert Vance** in Main Building Floor 2. \n\n*Emergency disclaimer: If you feel crushing pain, left arm tightness, or difficulty breathing, please seek immediate emergency care (Call 911).* Would you like to schedule an appointment with Dr. Vance?");
     return;
@@ -694,28 +702,28 @@ function processAiAgentResponse(inputText) {
     addAiMessage("bot", "**Dermatology route details:** \nI recommend **Dr. Clara Thorne** in East Wing Clinic. Would you like to book a slots today?");
     return;
   }
-  
+
   if (text.includes("prescription") || text.includes("medicine") || text.includes("pills")) {
     addAiMessage("bot", rules.prescription + "\n\n" + rules.medication);
     return;
   }
-  
+
   if (text.includes("report") || text.includes("cholesterol") || text.includes("lab") || text.includes("lipid")) {
     addAiMessage("bot", rules.lab + "\n\n" + window.mockData.labReports[0].interpretation.summary);
     return;
   }
-  
+
   if (text.includes("hospital") || text.includes("clinic") || text.includes("nearby")) {
     addAiMessage("bot", rules.hospitals);
     return;
   }
-  
+
   if (text.includes("schedule") || text.includes("appointment") || text.includes("book")) {
     addAiMessage("bot", "I've triggered the booking modal on your main console screen. You can select departments and dates. Would you like to select Dr. Robert Vance?");
     openBookingModal();
     return;
   }
-  
+
   if (text.includes("follow") || text.includes("vance")) {
     addAiMessage("bot", rules.followUp);
     return;
