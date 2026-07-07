@@ -1,0 +1,430 @@
+/* AegisHealth Futuristic Theme Stylesheet - Tailwind extensions + custom animations */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Manrope:wght@400;500;600;700;800&family=Poppins:wght@300;400;500;600;700;800&display=swap');
+
+:root {
+  --color-primary: #0F6FFF;      /* Medical Blue */
+  --color-success: #10B981;      /* Emerald Green */
+  --color-accent: #22D3EE;       /* Cyan */
+  --color-dark: #081A3A;         /* Deep Navy */
+  --color-light: #F8FAFC;        /* Soft Gray */
+  
+  --glass-bg: rgba(8, 26, 58, 0.75);
+  --glass-border: rgba(255, 255, 255, 0.06);
+  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+  --transition-smooth: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+  
+  /* Mouse Glow position */
+  --mouse-x: 50%;
+  --mouse-y: 50%;
+}
+
+[data-theme="light"] {
+  --glass-bg: rgba(255, 255, 255, 0.8);
+  --glass-border: rgba(15, 111, 255, 0.08);
+  --glass-shadow: 0 8px 32px 0 rgba(15, 111, 255, 0.05);
+}
+
+/* Base resets & fonts */
+body {
+  font-family: 'Inter', sans-serif;
+  scroll-behavior: smooth;
+  overflow-x: hidden;
+}
+
+.font-display {
+  font-family: 'Poppins', 'Manrope', sans-serif;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(15, 111, 255, 0.2);
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(15, 111, 255, 0.4);
+}
+
+/* ECG Heartbeat Loading Overlay */
+#ecg-loader-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: #040d1e;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.ecg-heart-pulse {
+  width: 100px;
+  height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #f43f5e;
+  font-size: 40px;
+  animation: heart-beat 1.2s infinite;
+}
+
+@keyframes heart-beat {
+  0% { transform: scale(1); }
+  14% { transform: scale(1.18); }
+  28% { transform: scale(1); }
+  42% { transform: scale(1.22); }
+  70% { transform: scale(1); }
+}
+
+.ecg-svg-path {
+  stroke-dasharray: 1000;
+  stroke-dashoffset: 1000;
+  animation: draw-ecg 3s linear infinite;
+}
+
+@keyframes draw-ecg {
+  0% { stroke-dashoffset: 1000; }
+  60% { stroke-dashoffset: 0; }
+  100% { stroke-dashoffset: -1000; }
+}
+
+/* Ambient Ambient Glow */
+.ambient-blur {
+  position: absolute;
+  width: 50vw;
+  height: 50vw;
+  border-radius: 50%;
+  filter: blur(150px);
+  z-index: -1;
+  opacity: 0.12;
+  pointer-events: none;
+}
+
+.blur-top {
+  top: -15%;
+  left: -5%;
+  background: radial-gradient(circle, var(--color-primary) 0%, transparent 70%);
+}
+
+.blur-bottom {
+  bottom: -15%;
+  right: -5%;
+  background: radial-gradient(circle, var(--color-success) 0%, transparent 70%);
+}
+
+/* Custom Glassmorphism Panels */
+.glass-panel {
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+  border-radius: 20px;
+  transition: var(--transition-smooth);
+}
+
+.glass-panel-hover:hover {
+  transform: translateY(-4px);
+  border-color: rgba(15, 111, 255, 0.2);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+}
+
+/* Mouse Glow Track Effect */
+.glow-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.glow-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(400px circle at var(--mouse-x) var(--mouse-y), rgba(15, 111, 255, 0.08), transparent 40%);
+  pointer-events: none;
+  z-index: 1;
+  transition: opacity 0.5s ease;
+  opacity: 0;
+}
+
+.glow-card:hover::before {
+  opacity: 1;
+}
+
+/* Custom ECG Vitals monitor SVG line */
+.vitals-svg-line {
+  stroke-dasharray: 200;
+  animation: flow-vitals 4s linear infinite;
+}
+
+@keyframes flow-vitals {
+  to { stroke-dashoffset: -200; }
+}
+
+/* Bouncing typing dot indicator */
+.typing-dot {
+  width: 6px;
+  height: 6px;
+  background-color: #9ca3af;
+  border-radius: 50%;
+  animation: bounce-typing 1.4s infinite ease-in-out both;
+}
+.typing-dot:nth-child(1) { animation-delay: -0.32s; }
+.typing-dot:nth-child(2) { animation-delay: -0.16s; }
+
+@keyframes bounce-typing {
+  0%, 80%, 100% { transform: scale(0); }
+  40% { transform: scale(1); }
+}
+
+/* Voice assistant wave pulse animation */
+.voice-wave-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  height: 24px;
+}
+
+.voice-wave-bar {
+  width: 3px;
+  height: 8px;
+  background-color: var(--color-accent);
+  border-radius: 2px;
+  animation: pulse-wave 1.2s infinite ease-in-out;
+}
+
+.voice-wave-bar:nth-child(2) { animation-delay: 0.15s; height: 16px; }
+.voice-wave-bar:nth-child(3) { animation-delay: 0.3s; height: 24px; }
+.voice-wave-bar:nth-child(4) { animation-delay: 0.45s; height: 12px; }
+.voice-wave-bar:nth-child(5) { animation-delay: 0.6s; height: 6px; }
+
+@keyframes pulse-wave {
+  0%, 100% { transform: scaleY(1); }
+  50% { transform: scaleY(2.2); }
+}
+
+/* FAQ Accordion Item Height Transitions */
+.faq-answer-container {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.faq-item.active .faq-answer-container {
+  max-height: 180px;
+}
+
+.faq-item.active .faq-arrow {
+  transform: rotate(180deg);
+}
+
+/* Medical consultation screen simulator */
+.video-preview-pulse {
+  position: relative;
+}
+.video-preview-pulse::after {
+  content: '';
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: var(--color-danger);
+  box-shadow: 0 0 10px var(--color-danger);
+  animation: recording-pulse 1.5s infinite;
+}
+
+@keyframes recording-pulse {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 1; }
+}
+
+/* Neumorphic Input buttons for calculator */
+.neumorphic-input {
+  box-shadow: inset 2px 2px 5px rgba(0,0,0,0.4), inset -2px -2px 5px rgba(255,255,255,0.05);
+}
+
+[data-theme="light"] .neumorphic-input {
+  box-shadow: inset 2px 2px 5px rgba(0,0,0,0.05), inset -2px -2px 5px rgba(255,255,255,0.8);
+}
+
+/* SVG grid lines background */
+.grid-overlay {
+  background-size: 40px 40px;
+  background-image: 
+    linear-gradient(to right, rgba(15, 111, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(15, 111, 255, 0.03) 1px, transparent 1px);
+}
+
+/* Floating Particles (ambient clinical atmosphere) */
+.particle {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  background-color: var(--color-accent);
+  border-radius: 50%;
+  opacity: 0.15;
+  pointer-events: none;
+  animation: float-up 20s infinite linear;
+}
+
+@keyframes float-up {
+  0% { transform: translateY(105vh) translateX(0) scale(0.8); }
+  50% { transform: translateY(50vh) translateX(25px) scale(1.2); }
+  100% { transform: translateY(-5vh) translateX(-10px) scale(0.8); }
+}
+
+/* Modal Styling */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(4, 9, 20, 0.85);
+  backdrop-filter: blur(8px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.modal-overlay.active {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.modal-container {
+  transform: scale(0.9);
+  transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.modal-overlay.active .modal-container {
+  transform: scale(1);
+}
+
+/* Heartrate trend glow */
+.glow-pulse-blue {
+  filter: drop-shadow(0 0 6px rgba(15, 111, 255, 0.5));
+}
+.glow-pulse-cyan {
+  filter: drop-shadow(0 0 6px rgba(34, 211, 238, 0.5));
+}
+
+/* Upgraded Premium Interactive & Animation Overrides */
+html.lenis {
+  height: auto;
+}
+.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+/* Custom Cursor markup styles */
+#custom-cursor {
+  width: 8px;
+  height: 8px;
+  background-color: #22D3EE;
+  border-radius: 50%;
+  position: fixed;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 10000;
+  transition: width 0.15s, height 0.15s, background-color 0.15s;
+}
+#custom-cursor-glow {
+  width: 36px;
+  height: 36px;
+  border: 1px solid rgba(34, 211, 238, 0.35);
+  border-radius: 50%;
+  position: fixed;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 9999;
+  transition: width 0.25s, height 0.25s, border-color 0.25s, background-color 0.25s;
+}
+.cursor-hover #custom-cursor {
+  width: 16px;
+  height: 16px;
+  background-color: rgba(34, 211, 238, 0.25);
+  border: 1px solid #22D3EE;
+}
+.cursor-hover #custom-cursor-glow {
+  width: 48px;
+  height: 48px;
+  border-color: rgba(34, 211, 238, 0.7);
+  background-color: rgba(34, 211, 238, 0.05);
+}
+
+#mouse-follow-glow {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 450px;
+  height: 450px;
+  background: radial-gradient(circle, rgba(15, 111, 255, 0.06) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  z-index: -1;
+  opacity: 1;
+}
+
+@media (pointer: coarse) {
+  #custom-cursor, #custom-cursor-glow, #mouse-follow-glow {
+    display: none !important;
+  }
+  body {
+    cursor: auto !important;
+  }
+}
+
+/* 3D Perspective Card Tilts */
+.tilt-card {
+  transition: transform 0.2s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.2s;
+  transform-style: preserve-3d;
+}
+.tilt-card-inner {
+  transform: translateZ(15px);
+}
+
+/* Slow Floating Motions */
+@keyframes float-ui {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-7px); }
+  100% { transform: translateY(0px); }
+}
+.floating-element {
+  animation: float-ui 4.5s ease-in-out infinite;
+}
+.floating-delay-1 {
+  animation-delay: 1.2s;
+}
+.floating-delay-2 {
+  animation-delay: 2.4s;
+}
+
+/* Skeleton Loading Pulsing overlays */
+.skeleton-pulse {
+  background: linear-gradient(90deg, rgba(255,255,255,0.02) 25%, rgba(255,255,255,0.06) 37%, rgba(255,255,255,0.02) 63%);
+  background-size: 400% 100%;
+  animation: skeleton-glow 1.5s ease infinite;
+}
+@keyframes skeleton-glow {
+  0% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Magnetic Button states */
+.magnetic-btn {
+  transition: transform 0.2s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.2s;
+}
+

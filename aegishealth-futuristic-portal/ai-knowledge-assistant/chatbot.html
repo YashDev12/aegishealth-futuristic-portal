@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>AgentOS Deep Space</title>
+  
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/atom-one-dark.min.css" />
+  <link rel="stylesheet" href="style.css" />
+  
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+  
+  <script type="importmap">
+    { "imports": { "@google/generative-ai": "https://esm.run/@google/generative-ai" } }
+  </script>
+</head>
+<body>
+
+  <!-- ==================== ONBOARDING ==================== -->
+  <div id="screen-onboarding" class="ds-screen">
+    <div class="glow-orb orb-1"></div>
+    <div class="glow-orb orb-2"></div>
+    
+    <div class="glass-card ob-card">
+      <div class="ob-logo">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg>
+      </div>
+      <h1 class="text-glow">AgentOS</h1>
+      <p class="ob-subtitle">Initialize your workspace by connecting Gemini.</p>
+
+      <div class="input-group">
+        <svg class="input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21 2-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0 3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
+        <input type="password" id="inp-apikey" class="ds-input" placeholder="Paste your API key here..." autocomplete="off" />
+      </div>
+      
+      <button type="button" id="btn-connect" class="ds-btn ds-btn-primary w-full mt-4">
+        Connect System
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+      </button>
+      
+      <button type="button" id="btn-demo" class="ds-btn ds-btn-outline w-full mt-2" style="border-color: rgba(34, 211, 238, 0.4); color: #22d3ee; display: flex; align-items: center; justify-content: center; gap: 8px;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+        Try Demo Mode (Offline)
+      </button>
+      
+      <p id="ob-error" class="ob-error"></p>
+    </div>
+  </div>
+
+  <!-- ==================== WORKSPACE ==================== -->
+  <div id="screen-workspace" class="ds-screen hidden">
+    
+    <!-- LEFT PANEL -->
+    <aside class="panel-left glass-panel">
+      <header class="panel-header">
+        <div class="brand text-glow">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg>
+          AgentOS
+        </div>
+      </header>
+
+      <div class="panel-actions">
+        <button id="btn-new-chat" class="ds-btn ds-btn-outline w-full">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+          New Session
+        </button>
+      </div>
+
+      <div class="panel-scroll-zone">
+        <h3 class="section-title">Session History</h3>
+        <ul id="ul-history" class="nav-list"></ul>
+        <div id="history-empty" class="empty-text">No active sessions.</div>
+      </div>
+
+      <footer class="panel-footer">
+        <button id="btn-settings" class="ds-btn ds-btn-ghost w-full justify-start">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          System Settings
+        </button>
+        <button id="btn-logout" class="ds-btn ds-btn-ghost ds-danger w-full justify-start mt-2">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          Disconnect
+        </button>
+      </footer>
+    </aside>
+
+    <!-- CENTER PANEL -->
+    <main class="panel-center">
+      
+      <!-- WIDGET HEADER (Hidden in normal mode) -->
+      <header id="widget-header" class="chat-topbar hidden" style="border-bottom: 1px solid var(--border-subtle); background: var(--bg-panel); display: none;">
+        <div class="topbar-left">
+          <div class="icon-btn" style="background: linear-gradient(135deg, #0ea5e9, #3b82f6); color: white; width: 32px; height: 32px; border-radius: 8px;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          </div>
+          <div>
+            <div style="font-weight: 600; font-size: 14px; color: white;">AI Doctor Assistant</div>
+            <div style="font-size: 10px; font-weight: 700; color: #10b981; letter-spacing: 0.05em; display: flex; align-items: center; gap: 4px;">
+              <span class="status-dot"></span> SECURE VOICE LINK ACTIVE
+            </div>
+          </div>
+        </div>
+        <button id="btn-widget-close" class="icon-btn" title="Close Widget">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </header>
+
+      <!-- Normal Header -->
+      <header id="normal-header" class="chat-topbar glass-panel-flat">
+        <div class="topbar-left">
+          <div class="model-badge text-glow-blue" id="ui-current-model">gemini-2.5-flash</div>
+          <div class="status-indicator">
+            <span class="status-dot"></span> Online
+          </div>
+        </div>
+        <div class="topbar-right">
+          <button id="btn-export" class="icon-btn" title="Export Chat to Markdown">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          </button>
+          <button id="btn-clear-chat" class="icon-btn ds-danger-text" title="Clear Chat">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+          </button>
+        </div>
+      </header>
+
+      <!-- Messages Scroll Area -->
+      <div id="mc-messages" class="chat-scroll-zone">
+        
+        <div id="empty-state" class="chat-empty">
+          <div class="empty-icon-wrap">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/></svg>
+          </div>
+          <h2 class="text-glow">Health Agent Ready</h2>
+          <p>AgentOS is online. Query WHO guidelines, medical literature, or clinical trial data.</p>
+          
+          <div class="suggestions-grid">
+            <button class="suggest-chip" data-q="Check my symptoms">
+              <span class="chip-icon">🩺</span> Check Symptoms
+            </button>
+            <button class="suggest-chip" data-q="Explain my prescription">
+              <span class="chip-icon">💊</span> Explain Prescription
+            </button>
+            <button class="suggest-chip" data-q="Decode my lab results">
+              <span class="chip-icon">🧪</span> Decode Lab Results
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Input Area (Fixed at bottom of flex container) -->
+      <div class="chat-input-wrapper">
+        <div id="attachment-preview" class="attachment-zone hidden"></div>
+        <div class="input-glass-container">
+          <input type="file" id="inp-file" class="hidden" accept=".txt,.md,.json,.csv,.js,.py,.html,.css,image/png,image/jpeg,image/webp" multiple />
+          <button id="btn-web-search" class="ds-icon-btn-left" title="Toggle Web Search">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/><path d="M2 12h20"/></svg>
+          </button>
+          <button id="btn-attach" class="ds-icon-btn-left" title="Attach File or Image">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+          </button>
+          <button id="btn-mic" class="ds-icon-btn-left" title="Voice Input">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/></svg>
+          </button>
+          <button id="btn-tts" class="ds-icon-btn-left" title="Toggle Voice Output">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
+          </button>
+          <textarea id="ta-chat" class="chat-textarea" placeholder="Send a message to AgentOS..." rows="1"></textarea>
+          <button id="btn-send" class="ds-send-btn" disabled>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          </button>
+        </div>
+        <div class="disclaimer">AgentOS relies on AI models and internal documents. Verify critical data.</div>
+      </div>
+
+    </main>
+
+    <!-- RIGHT PANEL -->
+    <aside class="panel-right glass-panel">
+      <header class="panel-header justify-between">
+        <div class="title-with-icon">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H19a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H6.5a1 1 0 0 1 0-5H20"/></svg>
+          Knowledge Context
+        </div>
+        <button id="btn-clear-ctx" class="icon-btn" title="Clear context">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </header>
+
+      <div class="panel-scroll-zone ds-context-area" id="sr-content">
+        <div id="ctx-empty" class="empty-text text-center mt-8">
+          <div style="opacity: 0.3; margin-bottom: 12px;">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H19a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H6.5a1 1 0 0 1 0-5H20"/></svg>
+          </div>
+          Sources retrieved by the agent will appear here.
+        </div>
+      </div>
+    </aside>
+
+  </div>
+
+  <!-- ==================== MODALS ==================== -->
+  <div id="modal-settings" class="ds-modal-overlay hidden">
+    <div class="glass-card ds-modal">
+      <header class="ds-modal-header">
+        <h2>System Settings</h2>
+        <button id="btn-close-settings" class="icon-btn">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </header>
+      
+      <div class="ds-modal-body">
+        <div class="form-group">
+          <label>Provider</label>
+          <select id="sel-provider" class="ds-input">
+            <option value="gemini">Google Gemini (Default)</option>
+            <option value="custom">Custom / Open-Source (GLM, Ollama)</option>
+          </select>
+        </div>
+
+        <div id="settings-gemini-wrap">
+          <div class="form-group mt-4">
+            <label>Gemini API Key</label>
+            <input type="password" id="inp-settings-key" class="ds-input" placeholder="AIzaSy..." />
+          </div>
+          <div class="form-group mt-4">
+            <label>Agent Model</label>
+            <select id="sel-model" class="ds-input">
+              <option value="gemini-2.5-flash">gemini-2.5-flash (fast & free tier)</option>
+              <option value="gemini-2.0-flash">gemini-2.0-flash (fast)</option>
+              <option value="gemini-2.5-pro">gemini-2.5-pro (advanced/paid)</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="settings-custom-wrap" class="hidden">
+          <div class="form-group mt-4">
+            <label>Base URL (e.g. http://localhost:11434/v1)</label>
+            <input type="text" id="inp-custom-url" class="ds-input" placeholder="https://api.example.com/v1" />
+          </div>
+          <div class="form-group mt-4">
+            <label>Custom Model Name (e.g. glm-4)</label>
+            <input type="text" id="inp-custom-model" class="ds-input" placeholder="glm-4" />
+          </div>
+          <div class="form-group mt-4">
+            <label>API Key (Optional for Local)</label>
+            <input type="password" id="inp-custom-key" class="ds-input" placeholder="sk-..." />
+          </div>
+        </div>
+
+        <div class="form-group mt-4">
+          <label>AI Persona</label>
+          <select id="sel-persona" class="ds-input">
+            <option value="professional">Knowledge Worker (Strict & Factual)</option>
+            <option value="coder">Code Expert (Focuses on programming)</option>
+            <option value="creative">Creative Brainstormer (Talkative & Ideas)</option>
+            <option value="health">Health & Medical (HONcode, NAM, WHO Compliant)</option>
+            <option value="engineer">Engineering (Strict & Evidence-Based)</option>
+            <option value="finance">Finance & Trading (Strict & Fiduciary)</option>
+          </select>
+        </div>
+      </div>
+      
+      <footer class="ds-modal-footer">
+        <button id="btn-save-settings" class="ds-btn ds-btn-primary w-full">Save Configuration</button>
+      </footer>
+    </div>
+  </div>
+
+  <div id="modal-preview" class="ds-modal-overlay hidden">
+    <div class="glass-card ds-modal" style="max-width: 90vw; width: 1200px; height: 90vh; display: flex; flex-direction: column;">
+      <header class="ds-modal-header" style="flex-shrink: 0;">
+        <h2 id="preview-title">Code Preview</h2>
+        <button id="btn-close-preview" class="icon-btn">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </header>
+      <div class="ds-modal-body" style="flex-grow: 1; padding: 0; background: #fff;">
+        <iframe id="preview-iframe" style="width: 100%; height: 100%; border: none; background: #fff;"></iframe>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>

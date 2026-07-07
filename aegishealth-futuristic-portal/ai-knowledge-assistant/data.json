@@ -1,0 +1,44 @@
+[
+  {
+    "id": "1",
+    "title": "AegisHealth Clinical Facilities & Locations",
+    "category": "Facility Directory",
+    "content": "AegisHealth operates across three specialized clinical wings:\n\n1. **Main Diagnostic Center (Floor 1-3)**: Houses General Medicine, Cardiology, and the secure genomic blood screening labs.\n2. **East Wing Clinic**: Dedicated to Pediatrics and Dermatology (including Dr. Clara Thorne's skin wellness clinic).\n3. **West Wing Care**: Houses Physical Therapy, Orthopedics, and long-term diagnostic rehabilitation.\n4. **Crisis Care Emergency Room**: Located on the ground floor of the Main Building, open 24/7/365 for immediate clinical interventions."
+  },
+  {
+    "id": "2",
+    "title": "Cardiology & Vascular Health Triage",
+    "category": "Clinical Triage",
+    "content": "For patients reporting chest pressure, heart racing, left arm tightness, or palpitations:\n\n- Match immediately with **Dr. Robert Vance** in Main Building Floor 2.\n- Schedule a 12-lead EKG or Holter Telemetry monitor.\n- *Emergency Warning*: If the patient experiences severe chest pain, shortness of breath, or numbness, bypass standard booking and dispatch Emergency SOS immediately (call 911)."
+  },
+  {
+    "id": "3",
+    "title": "Medication Guide: Amoxicillin 500mg & Cetirizine 10mg",
+    "category": "Prescriptions",
+    "content": "Active prescription interaction guide:\n\n- **Amoxicillin 500mg**: Antibiotic. Take 1 capsule, 3 times daily for 7 days. Complete the full course even if symptoms resolve. Used to treat Streptococcal Infection.\n- **Cetirizine 10mg**: Antihistamine. Take 1 tablet nightly as needed. Used to treat Allergic Rhinitis (runny nose, itchy eyes). Do not consume alcohol while taking Cetirizine as it may increase drowsiness."
+  },
+  {
+    "id": "4",
+    "title": "General Medicine: Dr. Alicia Vance",
+    "category": "Physician Directory",
+    "content": "Dr. Alicia Vance is the Lead Physician for General Medicine at AegisHealth.\n\n- **Credentials**: 10 Years Experience, fluent in English and Hindi.\n- **Specialty**: Comprehensive primary health audits, genomic blood screenings, vaccine compliance, and chronic care coordination.\n- **Consulting Hours**: 01:00 PM - 03:45 PM (Mon-Fri).\n- **Location**: Main Diagnostic Center, Floor 1."
+  },
+  {
+    "id": "5",
+    "title": "Dermatology & Skin Wellness: Dr. Clara Thorne",
+    "category": "Physician Directory",
+    "content": "Dr. Clara Thorne leads the Cutaneous Wellness Clinic at AegisHealth.\n\n- **Credentials**: 8 Years Experience, fluent in English and Spanish.\n- **Specialty**: Inflammatory skin conditions (eczema, psoriasis), whole-body mole mapping, and skin cancer diagnostic checks.\n- **Consulting Hours**: 02:15 PM - 04:30 PM (Mon-Fri).\n- **Location**: East Wing Clinic."
+  },
+  {
+    "id": "6",
+    "title": "Mental Health & Cognitive Wellness: Dr. Sarah Jenkins",
+    "category": "Physician Directory",
+    "content": "Dr. Sarah Jenkins is our chief of Psychotherapy Services.\n\n- **Credentials**: 9 Years Experience, fluent in English and French.\n- **Specialty**: Cognitive Behavioral Therapy (CBT), panic mitigation counseling, and insomnia rehabilitation programs.\n- **Consulting Hours**: 03:00 PM - 05:30 PM (Mon-Sat).\n- **Location**: West Wing Care."
+  },
+  {
+    "id": "7",
+    "title": "Lipid Panel Interpretation & Soluble Fiber Recommendations",
+    "category": "Diagnostics",
+    "content": "Interpreting recent lipid panels (e.g. Shivam's test on June 15):\n\n- **LDL-C**: 134 mg/dL (Borderline High). Standard threshold is < 100 mg/dL.\n- **Dietary Recommendations**: Increase daily soluble fiber by 10g (oats, barley, psyllium husk). Limit saturated fats (<7% of daily calories) and track cardiovascular telemetry metrics daily.\n- **Follow-up**: Schedule a review with Dr. Robert Vance (Cardiology) to evaluate cardiovascular progression."
+  }
+]
