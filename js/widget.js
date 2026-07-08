@@ -1,7 +1,7 @@
 (function () {
   // Configuration (Site Admin inputs their API key here)
   const WIDGET_CONFIG = {
-    apiKey: "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", // <-- Put your Groq API Key here
+    apiKey: "", // <-- Put your Groq API Key here
     provider: "custom",               // "gemini" or "custom"
     baseUrl: "https://api.groq.com/openai/v1", // Leave empty if using Gemini
     model: "llama-3.3-70b-versatile"  // The active Groq model you want to use
